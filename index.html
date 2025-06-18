@@ -24,14 +24,24 @@
             flex-direction: column;
             justify-content: flex-start;
         }
+        #playerBody {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 30px;
+        }
         #playerTriangle {
+            position: absolute;
             width: 0;
             height: 0;
             border-bottom: 10px solid rgba(0, 0, 0, 0.7);
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            margin-top: -10px;
-            transition: all 0.1s;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            pointer-events: none;
+            z-index: 10;
+            top: -10px;
+            left: 2px;
         }
         #info {
             position: absolute;
@@ -128,8 +138,11 @@
             let playerSpeed = 4;
             let playerColor = getRandomColor();
             
-            // Initialize player
-            player.innerHTML = '<div id="playerTriangle"></div>';
+            // Initialize player with body and triangle
+            player.innerHTML = `
+                <div id="playerBody" style="width: 20px; height: 30px; background-color: ${playerColor};"></div>
+                <div id="playerTriangle"></div>
+            `;
             updatePlayer();
             
             // Keyboard state
@@ -215,7 +228,8 @@
                 player.style.left = `${playerX}px`;
                 player.style.top = `${playerY}px`;
                 player.style.transform = `rotate(${playerRotation}deg)`;
-                player.style.backgroundColor = playerColor;
+                document.getElementById('playerBody').style.backgroundColor = playerColor;
+                
             }
             
             function getRandomColor() {
