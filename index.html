@@ -1,12 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Miecie</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Rectangle Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overflow: hidden;
+            touch-action: none;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #player {
+            position: absolute;
+            transform-origin: center;
+        }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 8px 16px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #copyBtn {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #copyBtn:hover {
+            opacity: 0.8;
+        }
+        #copyBtn:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
-<body>
+<body class="font-mono">
+    <div id="gameContainer">
+        <div id="player"></div>
+        <div id="info">
+            <span id="versionText">play.miecie.com<br>Version 1.21.6</span>
+            <button id="copyBtn" class="px-2 py-1 bg-gray-200 rounded" title="Copy to clipboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
 
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const player = document.getElementById('player');
+            const gameContainer = document.getElementById('gameContainer');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            // Player properties
+            let playerX = window.innerWidth / 2;
+            let playerY = window.innerHeight / 2;
+            let playerWidth = 20;
+            let playerHeight = 28;
+            let playerRotation = 0;
+            let playerSpeed = 5;
+            let playerColor = getRandomColor();
+            
+            // Initialize player
+            updatePlayer();
+            
+            // Keyboard state
+            const keys = {
+                w: false,
+                ArrowUp: false,
+                a: false,
+                ArrowLeft: false,
+                d: false,
+                ArrowRight: false
+            };
+            
+            // Event listeners for keyboard
+            document.addEventListener('keydown', (e) => {
+                if (keys.hasOwnProperty(e.key)) {
+                    keys[e.key] = true;
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                if (keys.hasOwnProperty(e.key)) {
+                    keys[e.key] = false;
+                }
+            });
+            
+            // Copy button functionality
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText('play.miecie.com')
+                    .then(() => {
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '✓';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+            });
+            
+            // Game loop
+            function gameLoop() {
+                // Movement
+                if (keys.w || keys.ArrowUp) {
+                    moveForward();
+                }
+                if (keys.a || keys.ArrowLeft) {
+                    playerRotation -= 5;
+                }
+                if (keys.d || keys.ArrowRight) {
+                    playerRotation += 5;
+                }
+                
+                updatePlayer();
+                requestAnimationFrame(gameLoop);
+            }
+            
+            function moveForward() {
+                const radians = playerRotation * Math.PI / 180;
+                playerX += Math.sin(radians) * playerSpeed;
+                playerY -= Math.cos(radians) * playerSpeed;
+                
+                // Boundary checks
+                playerX = Math.max(0, Math.min(window.innerWidth - playerWidth, playerX));
+                playerY = Math.max(0, Math.min(window.innerHeight - playerHeight, playerY));
+            }
+            
+            function updatePlayer() {
+                player.style.width = `${playerWidth}px`;
+                player.style.height = `${playerHeight}px`;
+                player.style.left = `${playerX}px`;
+                player.style.top = `${playerY}px`;
+                player.style.transform = `rotate(${playerRotation}deg)`;
+                player.style.backgroundColor = playerColor;
+            }
+            
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                playerX = Math.max(0, Math.min(window.innerWidth - playerWidth, playerX));
+                playerY = Math.max(0, Math.min(window.innerHeight - playerHeight, playerY));
+                updatePlayer();
+            });
+            
+            // Start the game loop
+            gameLoop();
+        });
+    </script>
 </body>
 </html>
